@@ -5,6 +5,7 @@ class CalculatorApp {
     this.value1 = "";
     this.value2 = "";
     this.currentDisplayValue = "";
+    this.currentOperationSet = false;
     this.currentOperation = "";
     this.operationStarted = false;
     this.operationProgress = false;
@@ -23,8 +24,12 @@ class CalculatorApp {
     this.display.innerHTML = this.parseDisplayValueToFloat() / 100;
     this.operationComplete = true;
   }
+  clearDisplay() {
+    this.display.innerHTML = "";
+  }
   resetDisplay() {
     this.display.innerHTML = 0;
+    this.numbers = [];
     this.currentOperation = "";
     this.value1 = "";
     this.value2 = "";
@@ -32,8 +37,11 @@ class CalculatorApp {
     this.operationProgress = false;
     this.operationComplete = false;
   }
-  getDisplayValue() {
+  setCurrentDisplayValue() {
     this.currentDisplayValue = this.display.innerHTML;
+  }
+  getDisplayValue() {
+    this.setCurrentDisplayValue();
     return this.display.innerHTML;
   }
   getButtonValue(target) {
@@ -72,7 +80,7 @@ class CalculatorApp {
     this.setDisplayValue(result);
   }
   completeOperation(value) {
-    console.log('Complete Operation Initiated...');
+    console.log("Complete Operation Initiated...");
     this.value2 = value;
 
     switch (this.getCurrentOperation()) {
@@ -94,6 +102,9 @@ class CalculatorApp {
     }
   }
   setOperation() {}
+  saveDisplayValue() {
+    this.numbers.push(this.getDisplayValue());
+  }
   getCurrentOperation() {
     return this.currentOperation;
   }
@@ -192,14 +203,22 @@ class CalculatorApp {
   numberButtonEvent(buttonValue) {
     console.log("numberButtonEvent");
 
-    //If the display value is equal to zero, Set value in the display to the current display value...
-    //Otherwise, concatonate zero to the current display value...
+    /**
+     * If the Current Operation is set, SAVE the Current Display Value to the Calculator App
+     * object and ClearDisplay...
+     */
 
-    if (this.num1 && this.operationStarted) {
-      this.resetDisplay();
-      this.operationStarted = false;
-      this.operationProgress = true;
+    /**
+     * If the Display Value is equal to zero, set the value in the display to the Current Display
+     * Value... Otherwise, concatonate zero to the Current Display Value...
+     *
+     */
+
+    if (this.currentOperationSet) {
+      this.saveDisplayValue();
+      this.clearDisplay();
     }
+
     if (this.getDisplayValue() == "0") {
       //Change the text of the AC button to "C"
       //Toggle AC button
@@ -231,7 +250,6 @@ class CalculatorApp {
         //Make sure the operation is NOT the EQUAL operation
         //Set the Current Operation on the instance of the this CalculatorApp
         //Set OperationStarted to TRUE
-        this.currentOperation = operation;
 
         if (operation != "equal") {
           /**
@@ -244,13 +262,15 @@ class CalculatorApp {
            * The SECOND of the two numbers (Value2) will be the CURRENT DISPLAY VALUE
            *
            */
-
+          this.currentOperation = operation;
+          this.currentOperationSet = true;
           console.log(
             `The mission is to ${operation} and it's about to go DOWN!!!`
           );
-          this.operationProgress = true;
           console.log(`Current Display Value: ${currentDisplayValue}`);
           // this.completeOperation(currentDisplayValue, operation);
+
+          this.numbers.push(currentDisplayValue);
         } else {
           /**
            * When any button OTHER THAN the EQUAL button is clicked, save the OPERATION and the CURRENT DISPLAY VALUE
@@ -265,21 +285,5 @@ class CalculatorApp {
       });
     });
   }
+  
 }
-
-
-/**
- * 
- * 
- *   performOperation(operator) {
-    if (this.currentInput !== "") {
-      if (this.previousInput !== "") {
-        this.calculateResult();
-      } else {
-        this.previousInput = this.currentInput;
-        this.currentInput = "";
-        this.currentOperator = operator;
-      }
-    }
-  }
- */
